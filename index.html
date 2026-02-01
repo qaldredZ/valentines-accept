@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A Purple Garden Invitation</title>
+    <style>
+        :root {
+            --primary-purple: #8a2be2;
+            --soft-lavender: #e6e6fa;
+            --deep-plum: #4b0082;
+            --orchid: #da70d6;
+            --env-purple: #9370db;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, var(--soft-lavender), #f3e5f5);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Flower Petal Animation */
+        .petal {
+            position: absolute;
+            background: rgba(218, 112, 214, 0.3);
+            border-radius: 150% 0 150% 0;
+            animation: fall linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Envelope Styles - Responsive Width */
+        .envelope-container {
+            position: relative;
+            width: 280px; /* Reduced for mobile */
+            height: 190px;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope {
+            position: absolute;
+            bottom: 0; width: 100%; height: 100%;
+            background: var(--env-purple);
+            border-radius: 0 0 15px 15px;
+            z-index: 2;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0; width: 0; height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 100px solid var(--deep-plum);
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 5;
+        }
+
+        .seal {
+            position: absolute;
+            top: 75px; left: 50%; transform: translateX(-50%);
+            font-size: 2.5rem; z-index: 6; transition: 0.4s;
+        }
+
+        /* Card Styles - Mobile First */
+        .card-wrapper {
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; 
+            z-index: 10; pointer-events: none;
+            width: 90%; /* Scale with screen */
+            max-width: 360px;
+        }
+
+        .card {
+            width: 100%; height: auto; min-height: 350px;
+            background: white; border: 4px solid var(--soft-lavender); border-radius: 25px;
+            padding: 25px; box-sizing: border-box; text-align: center;
+            transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transform: scale(0);
+            box-shadow: 0 15px 40px rgba(75, 0, 130, 0.15);
+            display: flex; flex-direction: column; justify-content: center; 
+            pointer-events: auto;
+        }
+
+        .envelope-container.open .flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-container.open .seal { opacity: 0; pointer-events: none; }
+        .envelope-container.open + .card-wrapper .card { transform: scale(1); opacity: 1; }
+
+        h2 { color: var(--deep-plum); margin: 10px 0 20px 0; font-size: 1.4rem; font-style: italic; }
+        
+        .buttons-container {
+            position: relative;
+            width: 100%; height: 160px; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        button {
+            padding: 14px 28px; font-size: 1.1rem; border: none; border-radius: 50px;
+            cursor: pointer; font-weight: bold;
+            -webkit-tap-highlight-color: transparent; /* Fix for iOS gray box */
+        }
+
+        #yesBtn { background: var(--primary-purple); color: white; z-index: 12; position: relative; }
+        #noBtn { 
+            background: #d1c4e9; color: var(--deep-plum); 
+            position: relative; z-index: 11; margin-left: 15px;
+            transition: left 0.3s ease, top 0.3s ease;
+        }
+
+        /* Tablet/Desktop Adjustments */
+        @media (min-width: 768px) {
+            .envelope-container { width: 320px; height: 220px; }
+            .flap { border-left-width: 160px; border-right-width: 160px; border-top-width: 110px; }
+            .seal { top: 85px; font-size: 2.8rem; }
+            .card { height: 400px; padding: 35px; }
+            h2 { font-size: 1.8rem; }
+        }
+
+        /* Overlay Messages */
+        #textOverlay {
+            background: rgba(75, 0, 130, 0.9); color: white;
+            padding: 10px 20px; border-radius: 50px; font-weight: bold;
+            opacity: 0; transition: opacity 0.3s ease;
+            text-align: center; margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .show-overlay { opacity: 1 !important; }
+        .hidden { display: none; }
+
+        #muteBtn {
+            position: fixed; bottom: 20px; right: 20px;
+            background: white; border: 2px solid var(--primary-purple);
+            border-radius: 50%; width: 50px; height: 50px;
+            cursor: pointer; z-index: 100; display: none;
+            align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+		#successGif {
+    width: 180px; /* Slightly larger for GIFs to see the detail */
+    height: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    border-radius: 15px; /* Optional: rounds the corners of the GIF */
+}
+
+@keyframes celebrate {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+    </style>
+</head>
+<body>
+
+<audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+<audio id="noSound" src="no.mp3" preload="auto"></audio>
+<audio id="yesSound" src="hooray.mp3" preload="auto"></audio>
+
+<button id="muteBtn" onclick="toggleMute()">🔊</button>
+
+<div class="envelope-container" id="invitation" onclick="openMe()">
+    <div class="flap"></div>
+    <div class="seal">🪻</div>
+    <div class="envelope"></div>
+</div>
+
+<div class="card-wrapper">
+    <div class="card" id="card">
+        <div id="quiz">
+            <h1 style="font-size: 1rem; color: var(--orchid); margin: 0;">Hi Jenieleen,</h1>
+            <h2>Would you be my Valentine? 💜</h2>
+            <div class="buttons-container" id="area">
+                <button id="yesBtn" onclick="sayYes()">Yes</button>
+                <button id="noBtn" onclick="sayNo()">No</button>
+            </div>
+        </div>
+        
+        <div id="success" class="hidden">
+            <img src="cute.gif" id="successGif" alt="Celebration">
+            <h2 style="color: var(--primary-purple);">Thank Youu!!</h2>
+            <p>I'll see you on the 14th. :) </p>
+        </div>
+    </div>
+
+    <div id="textOverlay">
+        <span id="msgMain">Wrong choice...</span>
+        <span id="msgSub" style="font-size: 0.7rem; display: block;"></span>
+    </div>
+</div>
+
+<script>
+    function createPetals() {
+        const count = window.innerWidth < 600 ? 12 : 25; // Less petals on mobile for performance
+        for (let i = 0; i < count; i++) {
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.width = Math.random() * 15 + 10 + 'px';
+            petal.style.height = petal.style.width;
+            petal.style.animationDuration = Math.random() * 3 + 3 + 's';
+            petal.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(petal);
+        }
+    }
+    createPetals();
+
+    let clicks = 0;
+    let currentScale = 1.0;
+    const maxClicks = 5;
+    let overlayTimeout;
+
+    const noSound = document.getElementById('noSound');
+    const yesSound = document.getElementById('yesSound');
+    const bgMusic = document.getElementById('bgMusic');
+
+    function openMe() {
+        bgMusic.volume = 0.4;
+        bgMusic.play().catch(e => {});
+        document.getElementById('muteBtn').style.display = 'flex';
+        document.getElementById('invitation').classList.add('open');
+    }
+
+    function toggleMute() {
+        const btn = document.getElementById('muteBtn');
+        bgMusic.muted = !bgMusic.muted;
+        btn.innerText = bgMusic.muted ? "🔇" : "🔊";
+    }
+
+    function sayNo() {
+        noSound.currentTime = 0;
+        noSound.play().catch(e => {});
+        clicks++;
+        
+        const noBtn = document.getElementById('noBtn');
+        const container = document.getElementById('area');
+        
+        if (noBtn.style.position !== 'absolute') {
+            noBtn.style.position = 'absolute';
+            noBtn.style.margin = '0';
+        }
+
+        if (clicks <= maxClicks) {
+            currentScale -= 0.12;
+            const maxX = container.offsetWidth - noBtn.offsetWidth - 10;
+            const maxY = container.offsetHeight - noBtn.offsetHeight - 10;
+            
+            noBtn.style.left = Math.max(5, Math.floor(Math.random() * maxX)) + 'px';
+            noBtn.style.top = Math.max(5, Math.floor(Math.random() * maxY)) + 'px';
+            noBtn.style.transform = `scale(${currentScale})`;
+            
+            triggerTextOverlay("Wrong answer, pls click yes!", `(${maxClicks - clicks + 1} left)`);
+        } else {
+            noBtn.style.display = 'none';
+            triggerTextOverlay("ahahhahaha", "tanggal na no button");
+        }
+    }
+
+    function sayYes() {
+        yesSound.play().catch(e => {});
+        document.getElementById('quiz').classList.add('hidden');
+        document.getElementById('success').classList.remove('hidden');
+        document.getElementById('textOverlay').style.display = 'none';
+    }
+
+    function triggerTextOverlay(main, sub) {
+        const overlay = document.getElementById('textOverlay');
+        document.getElementById('msgMain').innerText = main;
+        document.getElementById('msgSub').innerText = sub;
+        clearTimeout(overlayTimeout);
+        overlay.classList.add('show-overlay');
+        overlayTimeout = setTimeout(() => { overlay.classList.remove('show-overlay'); }, 2000);
+    }
+</script>
+
+</body>
+</html>
